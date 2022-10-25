@@ -82,8 +82,14 @@ end
 
 deck = initialise_deck.shuffle
 
-player_cards = draw_card(deck), draw_card(deck)
-dealer_cards = draw_card(deck), draw_card(deck)
+player_cards = []
+dealer_cards = []
+
+2.times do
+  player_cards << draw_card(deck)
+  dealer_cards << draw_card(deck)
+end
+
 player_score = calculate_score(player_cards)
 dealer_score = calculate_score(dealer_cards)
 
@@ -94,7 +100,7 @@ loop do
 
   prompt "Press (s) to 'stay' or (enter) to 'hit'."
   answer = gets.chomp
-  if answer.downcase.include?('s')
+  if answer.downcase.start_with?('s')
     prompt "You choose to stay!"
     break
   end
