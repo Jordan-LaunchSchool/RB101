@@ -10,18 +10,18 @@
   7. Compare cards and declare winner.
 =end
 
-SUITS = %w[S D C H]
-CARDS = %w[2 3 4 5 6 7 8 9 10 J Q K A]
+SUITS = %w(S D C H)
+CARDS = %w(2 3 4 5 6 7 8 9 10 J Q K A)
 
 def initialise_shuffled_deck
-  deck = SUITS.product(CARDS).shuffle
+  SUITS.product(CARDS).shuffle
 end
 
 def deal_cards_to_player_and_dealer(deck, player_cards, dealer_cards)
-  2.times do 
+  2.times do
     player_cards << deck.pop
     dealer_cards << deck.pop
-  end  
+  end
 end
 
 def prompt(msg)
@@ -37,7 +37,6 @@ def total(cards)
       score += 10
     else
       score += card[1].to_i
-
     end
   end
 
@@ -120,4 +119,3 @@ loop do
 end
 
 display_result(player_cards, dealer_cards)
-
