@@ -53,11 +53,37 @@ def busted?(cards)
 end
 
 def detect_result(player_cards, dealer_cards)
-player_total = total(player_cards)
-dealer_total = dealer(dealer_cards)
+	player_total = total(player_cards)
+	dealer_total = total(dealer_cards)
 
-if player_total = 
+	if player_total > 21
+		:player_busted
+	elsif dealer_total > 21
+		:dealer_busted
+	elsif player_total > dealer_total
+		:player_win
+	elsif dealer_total > player_total
+		:dealer_win
+	else
+		:tie
+	end
+end
 
+def display_result(player_cards, dealer_cards)
+	result = detect_result(player_cards, dealer_cards)
+
+	case result
+	when :player_busted
+		prompt "You busted! Dealer Wins!"
+	when :dealer_busted
+		prompt "Dealer busted! You Win!"
+	when :dealer_win
+		prompt "Dealer wins!"
+	when :player_win
+		prompt "Player wins!"
+	when :tie
+		prompt "It's a tie!"
+	end
 end
 
 deck = initialise_shuffled_deck
@@ -75,6 +101,9 @@ loop do
   answer = gets.chomp
   break if answer.start_with?('s') || busted?(player_cards)
   player_cards << deck.pop
+	prompt "You draw a #{player_cards[-1]}."
+	prompt "Press enter to continue..."
+	gets.chomp
 end
 
 loop do
@@ -87,9 +116,8 @@ loop do
   prompt "The dealer has drawn a #{dealer_cards[-1]}."
   prompt "Press enter to continue..."
   gets.chomp
+	break if busted?(dealer_cards)
 end
 
+display_result(player_cards, dealer_cards)
 
-# if dealer bust, player wins
-
-# compare cards and declare winner
