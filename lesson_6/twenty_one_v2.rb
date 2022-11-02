@@ -28,7 +28,7 @@ def prompt(msg)
   puts "=> " + msg.to_s
 end
 
-def total(cards)
+def total_score(cards)
   score = 0
   cards.each do |card|
     if card[1] == 'A'
@@ -47,14 +47,11 @@ def total(cards)
   score
 end
 
-def busted?(cards)
-  total(cards) > 21
+def busted?(total)
+  total > 21
 end
 
-def detect_result(player_cards, dealer_cards)
-	player_total = total(player_cards)
-	dealer_total = total(dealer_cards)
-
+def detect_result(player_total, dealer_total)
 	if player_total > 21
 		:player_busted
 	elsif dealer_total > 21
@@ -68,8 +65,7 @@ def detect_result(player_cards, dealer_cards)
 	end
 end
 
-def display_result(player_cards, dealer_cards)
-	result = detect_result(player_cards, dealer_cards)
+def display_result(player_total, dealer_total, result)
 
 	case result
 	when :player_busted
@@ -85,37 +81,86 @@ def display_result(player_cards, dealer_cards)
 	end
 end
 
-deck = initialise_shuffled_deck
-
-player_cards = []
-dealer_cards = []
-deal_cards_to_player_and_dealer(deck, player_cards, dealer_cards)
-
-loop do
-  system 'clear'
-  break if busted?(player_cards)
-  prompt "The dealer has #{dealer_cards[0]} and an unknown card."
-  prompt "Your cards are #{player_cards} and you are on #{total(player_cards)}."
-  prompt "Would you like to (h)it or (s)tay?"
-  answer = gets.chomp
-  break if answer.start_with?('s') || busted?(player_cards)
-  player_cards << deck.pop
-	prompt "You draw a #{player_cards[-1]}."
-	prompt "Press enter to continue..."
-	gets.chomp
+def play_again?
+  prompt "Would you like to play again? (y)es/(n)o?"
+  play_again = gets.chomp
+  play_again.downcase.start_with?('y')
 end
 
+
 loop do
-  system 'clear'
-  break if busted?(player_cards)
-  prompt "Your cards are #{player_cards} and you are on #{total(player_cards)}."
-  prompt "The dealer has #{dealer_cards} and is on #{total(dealer_cards)}."
-  break if total(dealer_cards) >= 17
-  dealer_cards << deck.pop
-  prompt "The dealer has drawn a #{dealer_cards[-1]}."
-  prompt "Press enter to continue..."
-  gets.chomp
-	break if busted?(dealer_cards)
+  player_score = 0
+  dealer_score = 0
+  
+  loop do
+    deck = initialise_shuffled_deck
+
+    player_cards = []
+    dealer_cards = []
+    deal_cards_to_player_and_dealer(deck, player_cards, dealer_cards)
+    player_total = 0
+    dealer_total = 0
+
+    loop do
+      system 'clear'
+      player_total = total_score(player_cards)
+      break if busted?(player_total)
+
+      prompt "The dealer has #{dealer_cards[0]} and an unknown card."
+      prompt "Your cards are #{player_cards} and you are on #{player_total}."
+      prompt "Would you like to (h)it or (s)tay?"
+      answer = gets.chomp
+      break if answer.start_with?('s')
+
+      player_cards << deck.pop
+      prompt "You draw a #{player_cards[-1]}."
+      prompt "Press enter to continue..."
+      gets.chomp
+    end
+
+    loop do
+      system 'clear'
+      dealer_total = total_score(dealer_cards)
+      break if busted?(player_total) || busted?(dealer_total)
+
+      prompt "Your cards are #{player_cards} and you are on #{player_total}."
+      prompt "The dealer has #{dealer_cards} and is on #{dealer_total}."
+
+      break if dealer_total >= 17
+      dealer_cards << deck.pop
+      prompt "The dealer has drawn a #{dealer_cards[-1]}."
+      prompt "Press enter to continue..."
+      gets.chomp
+    end
+
+    result = detect_result(player_total, dealer_total)
+    if result == :player_busted || result == :dealer_win
+      dealer_score += 1
+    elsif result == :dealer_busted || result == :player_win
+      player_score += 1
+    end
+
+    
+    display_result(player_total, dealer_total, result)
+    prompt "You are on #{player_score}."
+    prompt "The dealer is on #{dealer_score}."
+
+
+    if player_score == 5 
+      prompt "You won 5 times!"
+      break
+    elsif dealer_score == 5
+      prompt "The dealer won 5 times!"
+      break
+    end
+    prompt "Press enter to start next round..."
+    gets.chomp
+  end
+
+
+
+
+  break unless play_again?
 end
 
-display_result(player_cards, dealer_cards)
+prompt "Thanks for playing 21! Goodbye!"
